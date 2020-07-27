@@ -1,13 +1,13 @@
 export default class {
-    private _name = '運勢檢查';
-    private _command = ['!luck', '!運勢'];
+    private name = '運勢檢查';
+    private command = ['!luck', '!運勢'];
 
     public getName = () => {
-        return this._name;
+        return this.name;
     }
 
     public getCommand = () => {
-        return this._command;
+        return this.command;
     }
 
     public checkLuck = () => {

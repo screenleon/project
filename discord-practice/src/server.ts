@@ -1,6 +1,6 @@
 import * as Discord from 'discord.js';
 import dotenv from 'dotenv';
-import { Luck } from './BotFunction';
+import { Luck, PlayAudio } from './BotFunction';
 dotenv.config({ path: '.env' });
 
 const client = new Discord.Client();
@@ -11,21 +11,25 @@ client.once('ready', () => {
 })
 
 client.on('message', message => {
-    // console.log(message.content);
-    // console.log('message client:',message.client);
-    // console.log('message id:', message.id);
-    // console.log('message member:', message.member)
+    const userCommand = message.content.match(/\S+/g);
     if (message.author.bot)
         return;
 
     const luck = new Luck();
+    const playAudio = new PlayAudio(message);
     const luckCommand = luck.getCommand();
-    const playCommand = ['a'];
-    if (luckCommand.some(element => message.content.search(element) === 0)) {
-        const { luckString } = luck.checkLuck();
-        message.channel.send(luckString);
-    } else if (playCommand.some(element => message.content.search(element) === 0)) {
+    const playAudioCommand = playAudio.getCommand();
+    const helpCommand = '!help';
 
+    if (!userCommand) return;
+    else if (luckCommand.some(element => userCommand[0] === element)) {
+        message.channel.send(luck.checkLuck().luckString);
+    } else if (playAudioCommand.some(element => userCommand[0] === element)) {
+        playAudio.play(message.content);
+    } else if (userCommand[0] === helpCommand) {
+        const luckString = luck.getName() + '\n' + 'Command: ' + luckCommand;
+        const playAudioString = playAudio.getName() + '\n' + 'Command: ' + playAudioCommand;
+        message.channel.send([luckString, playAudioString].join('\n\n'));
     }
 
     return;
