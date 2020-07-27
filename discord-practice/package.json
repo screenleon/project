@@ -1,0 +1,32 @@
+{
+  "name": "discord-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/server.js",
+    "start:dev": "nodemon src/server.ts",
+    "start:pro": "tsc && NODE_ENV=production npm start",
+    "tsc": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "volta": {
+    "node": "12.18.3"
+  },
+  "dependencies": {
+    "@types/mongoose": "^5.7.32",
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.9.25",
+    "typescript": "^3.9.7"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.26",
+    "nodemon": "^2.0.4",
+    "simple-youtube-api": "^5.2.1",
+    "ts-node": "^8.10.2"
+  }
+}
