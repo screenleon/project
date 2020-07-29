@@ -1,16 +1,20 @@
 {
   "name": "discord-bot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A small discord bot",
   "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "start:dev": "nodemon src/server.ts",
     "start:build": "tsc && npm start",
     "tsc": "tsc"
   },
-  "keywords": ["nodejs", "typescript", "javascript", "discord"],
+  "keywords": [
+    "nodejs",
+    "typescript",
+    "javascript",
+    "discord"
+  ],
   "author": "Lien Chen",
   "license": "ISC",
   "volta": {
