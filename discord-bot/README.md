@@ -1,4 +1,4 @@
-# Discord Practice
+# Discord Bot
 * [Instruction](#instruction)
 * [Features](#features)
 * [Implementation in the future](#implementation-in-the-future)
@@ -29,16 +29,16 @@
     * Command: !luck, !運勢
 2. Play Audio
     * Play youtube song
-    * Record input song
-    * Command: !p
+    * Record input song to queue
+    * Command: !play, !pause, !skip, !stop
+3. Easy build with docker
 
 ---
 ## Implementation in the future
 * Play Audio
-    * Play, Stop, Skip songs
-    * Load list youtube songs by an url.
+    * Load list youtube songs by an url
 * Get the latest reddit news
-* ~~Build by docker~~
+* Maybe add the lotto system
 
 ---
 ## Reference
