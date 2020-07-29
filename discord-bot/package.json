@@ -1,27 +1,25 @@
 {
-  "name": "discord-practice",
+  "name": "discord-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A small discord bot",
   "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
     "start:dev": "nodemon src/server.ts",
-    "start:pro": "tsc && NODE_ENV=production npm start",
+    "start:build": "tsc && npm start",
     "tsc": "tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["nodejs", "typescript", "javascript", "discord"],
+  "author": "Lien Chen",
   "license": "ISC",
   "volta": {
     "node": "12.18.3"
   },
   "dependencies": {
-    "@types/mongoose": "^5.7.32",
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.2.6",
-    "mongoose": "^5.9.25",
     "typescript": "^3.9.7",
     "ytdl-core": "^3.1.3"
   },
