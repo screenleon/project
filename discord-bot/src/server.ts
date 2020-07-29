@@ -12,8 +12,11 @@ client.once("ready", () => {
 });
 
 client.on("message", (message) => {
-  const userCommand = message.content.match(/\S+/g);
   if (message.author.bot) return;
+
+  const command = message.content.match(/\S+/g);
+  if (!command) return;
+  const userCommand = command[0];
 
   const luck = new Luck();
   const playAudio = new PlayAudio(message, queue);
@@ -21,14 +24,18 @@ client.on("message", (message) => {
   const playAudioCommand = playAudio.getCommand();
   const helpCommand = "!help";
 
-  if (!userCommand) return;
-  else if (luckCommand.some((element) => userCommand[0] === element)) {
+
+  if (luckCommand.some((element) => userCommand === element)) {
     message.channel.send(luck.checkLuck().luckString);
-  } else if (userCommand[0] === "!p") {
+  } else if (userCommand === "!play") {
     playAudio.execute(message.content);
-  } else if (userCommand[0] === "!skip") {
+  } else if (userCommand === "!skip") {
     playAudio.skip();
-  } else if (userCommand[0] === helpCommand) {
+  } else if (userCommand === "!pause") {
+    playAudio.pause();
+  } else if (userCommand === "!stop") {
+    playAudio.stop();
+  } else if (userCommand === helpCommand) {
     const luckString = luck.getName() + "\n" + "Command: " + luckCommand;
     const playAudioString =
       playAudio.getName() + "\n" + "Command: " + playAudioCommand;

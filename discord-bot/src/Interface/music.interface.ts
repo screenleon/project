@@ -12,4 +12,5 @@ export interface MusicContract {
     songs: SongInfo[];
     volume: number;
     songDispatcher?: StreamDispatcher;
+    playing: boolean;
 }
