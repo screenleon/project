@@ -4,7 +4,7 @@ import { MusicContract, SongInfo } from '../Interface';
 
 export default class {
     private name = 'Play Audio';
-    private command = ['!p'];
+    private command = ['!p','!skip'];
     private ytRegexp = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
     private message: Message;
     private musicQueue!: MusicContract;
@@ -81,6 +81,7 @@ export default class {
             this.queue.delete(this.guild.id);
             return;
         }
+
         const dispatcher = this.musicQueue.connection?.play(ytdl(song.url))
             .on('finish', () => {
                 this.musicQueue.songs.shift();
@@ -95,4 +96,20 @@ export default class {
         this.musicQueue.textChannel?.send(`Start playing: **${song.title}**`);
         return;
     }
+
+    public skip = () => {
+        switch (this.musicQueue.songs.length) {
+            case 0:
+                this.message.channel.send('Music Queue is empty!')
+                break;
+            case 1:
+                this.message.channel.send('The song is the last one!');
+                break;
+            default:
+                this.musicQueue.songs.shift();
+                this.queue.set(this.guild.id, this.musicQueue);
+                this.play();
+                break;
+        }
+    };
 }
