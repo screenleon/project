@@ -1,0 +1,9 @@
+version: '3'
+services:
+    discordbot:
+      # Change to your build image name
+      image: YOUR_BUILD_IMAGE_NAME
+      # env_file:           # If you develop this project, prefer to use this
+      #   - ./.env
+      environment:        # If you just run this project, prefer to use this and set your own DISCORD_TOKEN
+        - DISCORD_TOKEN=YOUR_DISCORD_TOKEN
