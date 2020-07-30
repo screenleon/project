@@ -25,14 +25,24 @@ export default class {
 
     }
 
+    /**
+     * Get this class name
+     */
     public getName = () => {
         return this.name;
     }
 
+    /**
+     * Get this class command
+     */
     public getCommand = () => {
         return this.command;
     }
 
+    /**
+     * Fetch youtube'url in command. If musicQueue not initial, initial it and start play song, else push song into musicQueue.songs.
+     * @param command discord's command
+     */
     public execute = (command: string) => {
         const voiceChannel = this.message.member?.voice.channel;
         if (!voiceChannel) {
@@ -81,6 +91,9 @@ export default class {
             })
     }
 
+    /**
+     * Set the StreamPatcher's event and play the song in musicQueue.songs
+     */
     private play = () => {
         const song = this.musicQueue.songs[0];
         const checkPlayNextSongMilliSecond = 10;
@@ -166,6 +179,10 @@ export default class {
         return;
     }
 
+    /**
+     * Emit StreamDispatcher's pause event, pass the idle timeout time(minutes).
+     * @param time minutes, Default 5 minutes
+     */
     public pause = (time: number = 5) => {
         if (!this.musicQueue.songDispatcher) {
             this.musicQueue.textChannel.send(`There is no songs in queue!`);
@@ -175,6 +192,9 @@ export default class {
         return
     }
 
+    /**
+     * If songs more than one, then emit StreamDispatcher's finish event.
+     */
     public skip = () => {
         switch (this.musicQueue.songs.length) {
             case 0:
@@ -189,12 +209,20 @@ export default class {
         }
     };
 
+    /**
+     * Emit StreamDispatcher's stop event, pass the leave voice channel timeout time(seconds).
+     * @param time seconds, Default 30 seconds
+     */
     public stop = (time: number = 30) => {
         this.musicQueue.textChannel.send('Stop playing');
         this.musicQueue.songDispatcher?.emit('stop', time);
         return;
     }
 
+
+    /**
+     * Clear musicQueue.songs, musicQueue.playing reset, and remove musicQueue.songDispatcher, save to botMusicQueue.
+     */
     private clearDispatcher = () => {
         this.musicQueue.songs = [];
         this.musicQueue.playing = false;
@@ -204,6 +232,10 @@ export default class {
         return;
     }
 
+
+    /**
+     * Reset the musicQueue to initial, and delete this id's MusicQueue in bot queue.
+     */
     private resetMusicQueue = () => {
         this.clearDispatcher();
         delete this.musicQueue.connection;

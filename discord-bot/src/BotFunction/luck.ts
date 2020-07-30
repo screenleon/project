@@ -2,14 +2,23 @@ export default class {
     private name = '運勢檢查';
     private command = ['!luck', '!運勢'];
 
+    /**
+     * Get the class name
+     */
     public getName = () => {
         return this.name;
     }
 
+    /**
+     * Get the class command
+     */
     public getCommand = () => {
         return this.command;
     }
 
+    /**
+     * Random number and send the lucky string
+     */
     public checkLuck = () => {
         const luckNumber = Math.floor(Math.random() * 7);
         switch (luckNumber) {
