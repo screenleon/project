@@ -6,11 +6,17 @@ dotenv.config({ path: ".env" });
 const queue = new Map();
 const client = new Discord.Client();
 
+/**
+ * If success log in the bot, print out the bot tag
+ */
 client.once("ready", () => {
   console.log(`Logged in as ${client?.user?.tag}!`);
   return;
 });
 
+/**
+ * Check the user's input, find the command and run it 
+ */
 client.on("message", (message) => {
   if (message.author.bot) return;
 
@@ -23,7 +29,6 @@ client.on("message", (message) => {
   const luckCommand = luck.getCommand();
   const playAudioCommand = playAudio.getCommand();
   const helpCommand = "!help";
-
 
   if (luckCommand.some((element) => userCommand === element)) {
     message.channel.send(luck.checkLuck().luckString);
