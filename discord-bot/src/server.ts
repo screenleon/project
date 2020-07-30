@@ -24,7 +24,6 @@ client.on("message", (message) => {
   const playAudioCommand = playAudio.getCommand();
   const helpCommand = "!help";
 
-
   if (luckCommand.some((element) => userCommand === element)) {
     message.channel.send(luck.checkLuck().luckString);
   } else if (userCommand === "!play") {
