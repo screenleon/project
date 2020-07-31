@@ -1,11 +1,12 @@
 import { Message, Guild } from 'discord.js';
 import ytdl from 'ytdl-core';
-import { MusicContract, SongInfo } from '../Interface';
+import { MusicContract } from '../Interface';
+const ytlist = require('youtube-playlist');
 
 export default class {
     private name = 'Play Audio';
     private command = ['!play', '!skip', '!pause', '!stop', '!volume'];
-    private ytRegexp = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
+    private ytRegexp = /(?:http?s?:\/\/)?(?:www.)?(?:m.)?(?:music.)?youtu(?:\.?be)(?:\.com)?(?:(?:\w*.?:\/\/)?\w*.?\w*-?.?\w*\/(?:embed|e|v|watch|playlist|.*\/)?\??(?:feature=\w*\.?\w*)?&?(?:v=|list=)?\/?)([\w\d_-]{11})(?:\S+)?/;
     private message: Message;
     private musicQueue!: MusicContract;
     private botMusicqueue: Map<string, MusicContract>;
@@ -19,7 +20,7 @@ export default class {
         this.guild = this.message.guild;
         this.lastPlayTime = Date.now();
         if (!this.botMusicqueue.has(this.guild.id))
-            this.musicQueue = { textChannel: this.message.channel, songs: [], volume: 10, playing: false };
+            this.musicQueue = { songs: [], volume: 10, playing: false };
         else
             this.musicQueue = this.botMusicqueue.get(this.guild.id) as MusicContract;
     }
@@ -66,29 +67,65 @@ export default class {
             this.message.channel.send('Please type Youtube website!');
             return;
         };
-        ytdl.getInfo(matchYT[0])
-            .then(songInfo => {
-                const song: SongInfo = { title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url };
-                if (this.musicQueue.songs.length === 0) {
-                    if (!this.musicQueue.hasOwnProperty('voiceChannel')) this.musicQueue.voiceChannel = voiceChannel;
-                    this.musicQueue.songs.push(song);
-                    this.botMusicqueue.set(this.guild.id, this.musicQueue);
-                    return voiceChannel.join();
-                }
-                this.musicQueue.songs.push(song);
+
+        new Promise(resolve => {
+            resolve()
+        }).then(() => {
+            if (matchYT[0].search(/list/) < 0) {
+                return this.getSong(matchYT[0]);
+            } else {
+                return this.getSongList(matchYT[0]);
+            }
+        }).then(songInfoList => {
+            if (songInfoList.length > 1) {
+                this.message.channel.send(`Added ${songInfoList.length} songs to the queue`);
+            } else {
+                this.message.channel.send(`**${songInfoList[0].name}** has been added to the queue`);
+            }
+
+            if (this.musicQueue.songs.length === 0) {
+                if (!this.musicQueue.hasOwnProperty('voiceChannel')) this.musicQueue.voiceChannel = voiceChannel;
+                this.musicQueue.songs.push(...songInfoList);
                 this.botMusicqueue.set(this.guild.id, this.musicQueue);
-                this.message.channel.send(`${song.title} has been added to the queue`);
-                return;
-            }).then(voiceConnection => {
-                if (!voiceConnection) return;
-                if (!this.musicQueue.connection) this.musicQueue.connection = voiceConnection;
-                this.play();
-            }).catch(e => {
-                console.error(e);
-                this.botMusicqueue.delete(this.guild.id);
-                this.message.channel.send(e);
-                return;
-            })
+                return voiceChannel.join();
+            }
+            this.musicQueue.songs.push(...songInfoList);
+            this.botMusicqueue.set(this.guild.id, this.musicQueue);
+            return;
+        }).then(voiceConnection => {
+            if (!voiceConnection) return;
+            if (!this.musicQueue.connection) this.musicQueue.connection = voiceConnection;
+            this.play();
+        }).catch(e => {
+            console.error(e);
+            this.botMusicqueue.delete(this.guild.id);
+            this.message.channel.send(e);
+            return;
+        })
+    }
+
+    /**
+     * Get the song without list
+     * @param url youtube url
+     */
+    private getSong = (url: string): Promise<{ name: string, url: string }[]> => {
+        return ytdl.getInfo(url)
+            .then(songInfo => {
+                return [{ name: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url }];
+            });
+    }
+
+    /**
+     * Get the songs with list in query
+     * @param url youtube url with list
+     */
+    private getSongList = (url: string): Promise<{ name: string, url: string }[]> => {
+        return ytlist(url, ['name', 'url'])
+            .then((res: { data: { name: string, playlist: { name: string, url: string }[] } }) => {
+                if (res)
+                    return res.data.playlist;
+                else return [];
+            });
     }
 
     /**
@@ -116,22 +153,20 @@ export default class {
                     this.lastPlayTime = Date.now();
                     this.musicQueue.playing = true;
                     this.botMusicqueue.set(this.guild.id, this.musicQueue);
-                    this.musicQueue.textChannel.send(`Resume playing: **${this.musicQueue.songs[0].title}**`);
+                    this.message.channel.send(`Resume playing: **${this.musicQueue.songs[0].name}**`);
                     return;
                 } else {
-                    this.musicQueue.textChannel.send(`Already playing`);
+                    this.message.channel.send(`Already playing`);
                     return;
                 }
             })
             .on('pause', (time: number = 5) => {
-                const textChannel = this.musicQueue.textChannel;
                 if (!this.musicQueue.playing) {
-                    textChannel.send(`Already pause the song!`);
+                    this.message.channel.send(`Already pause the song!`);
                     return;
                 }
 
                 setTimeout(() => {
-                    console.log('pause timeout');
                     if (Date.now() - this.lastPlayTime < time * 60 * 1000) {
                         return;
                     }
@@ -143,7 +178,7 @@ export default class {
                 this.lastPlayTime = Date.now();
                 this.musicQueue.playing = false;
                 this.botMusicqueue.set(this.guild.id, this.musicQueue);
-                textChannel.send(`Pause playing: **${this.musicQueue.songs[0].title}**`);
+                this.message.channel.send(`Pause playing: **${this.musicQueue.songs[0].name}**`);
                 return;
             })
             .on('finish', () => {
@@ -174,7 +209,7 @@ export default class {
         dispatcher?.setVolume(this.musicQueue.volume / 100);
         this.musicQueue.songDispatcher = dispatcher;
         this.botMusicqueue.set(this.guild.id, this.musicQueue);
-        this.musicQueue.textChannel.send(`Start playing: **${song.title}**`);
+        this.message.channel.send(`Start playing: **${song.name}**`);
         return;
     }
 
@@ -184,7 +219,7 @@ export default class {
      */
     public pause = (time: number = 5) => {
         if (!this.musicQueue.songDispatcher) {
-            this.musicQueue.textChannel.send(`There is no songs in queue!`);
+            this.message.channel.send(`There is no songs in queue!`);
             return;
         } else
             this.musicQueue.songDispatcher.emit('pause', time);
@@ -213,7 +248,7 @@ export default class {
      * @param time seconds, Default 30 seconds
      */
     public stop = (time: number = 30) => {
-        this.musicQueue.textChannel.send('Stop playing');
+        this.message.channel.send('Stop playing');
         this.musicQueue.songDispatcher?.emit('stop', time);
         return;
     }
