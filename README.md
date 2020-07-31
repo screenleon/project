@@ -6,7 +6,7 @@
 
 ## Instruction
 ### Get the Discord Bot Info
-1. Add the bot from [Discord development](https://discord.com/developers/), and get the discord clientId, PERMISSIONS_INTEGER, token.W
+1. Add the bot from [Discord development](https://discord.com/developers/), and get the discord clientId, PERMISSIONS_INTEGER, discord bot token.
 2. Use `https://discordapp.com/oauth2/authorize?client_id=<Bot_Client_ID>&scope=bot&permissions=<PERMISSIONS_INTEGER>` to add bot to server.
 
 ---
@@ -30,7 +30,7 @@
 2. Play Audio
     * Play youtube song
     * Record input song to queue
-    * Command: !play, !pause, !skip, !stop
+    * Command: !play, !pause, !skip, !stop, !volume
 3. Easy build with docker
 
 ---
@@ -39,6 +39,8 @@
     * Load list youtube songs by an url
 * Get the latest reddit news
 * Maybe add the lotto system
+* Help
+    * Give more information
 
 ---
 ## Reference

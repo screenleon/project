@@ -40,6 +40,8 @@ client.on("message", (message) => {
     playAudio.pause();
   } else if (userCommand === "!stop") {
     playAudio.stop();
+  } else if (userCommand === "!volume") {
+    playAudio.volume(parseInt(command[1]));
   } else if (userCommand === helpCommand) {
     const luckString = luck.getName() + "\n" + "Command: " + luckCommand;
     const playAudioString =
