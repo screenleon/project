@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { Luck, PlayAudio } from "./BotFunction";
 dotenv.config({ path: ".env" });
 
-const queue = new Map();
+const musicQueue = new Map();
 const client = new Discord.Client();
 
 /**
@@ -25,13 +25,14 @@ client.on("message", (message) => {
   const userCommand = command[0];
 
   const luck = new Luck();
-  const playAudio = new PlayAudio(message, queue);
+  const playAudio = new PlayAudio(message, musicQueue);
   const luckCommand = luck.getCommand();
   const playAudioCommand = playAudio.getCommand();
   const helpCommand = "!help";
 
   if (luckCommand.some((element) => userCommand === element)) {
-    message.channel.send(luck.checkLuck().luckString);
+    if (message.deletable) message.delete();
+    message.reply(luck.checkLuck().luckString);
   } else if (userCommand === "!play") {
     playAudio.execute(message.content);
   } else if (userCommand === "!skip") {
