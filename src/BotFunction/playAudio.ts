@@ -98,8 +98,7 @@ export default class {
         const song = this.musicQueue.songs[0];
         const checkPlayNextSongMilliSecond = 10;
         if (!song) {
-            this.musicQueue.voiceChannel?.leave();
-            this.botMusicqueue.delete(this.guild.id);
+            this.musicQueue.songDispatcher?.emit('stop');
             return;
         } else if (!!this.musicQueue.songDispatcher && this.musicQueue.songDispatcher.totalStreamTime - this.musicQueue.songDispatcher.streamTime > checkPlayNextSongMilliSecond) {
             this.musicQueue.songDispatcher.emit('playing');
