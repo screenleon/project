@@ -77,10 +77,16 @@ export default class {
                 return this.getSongList(matchYT[0]);
             }
         }).then(songInfoList => {
-            if (songInfoList.length > 1) {
-                this.message.channel.send(`Added ${songInfoList.length} songs to the queue`);
-            } else {
-                this.message.channel.send(`**${songInfoList[0].name}** has been added to the queue`);
+            switch (songInfoList.length) {
+                case 0:
+                    this.message.channel.send(`**${matchYT[0]}** might be wrong`);
+                    return;
+                case 1:
+                    this.message.channel.send(`**${songInfoList[0].name}** has been added to the queue`);
+                    break;
+                default:
+                    this.message.channel.send(`Added ${songInfoList.length} songs to the queue`);
+                    break;
             }
 
             if (this.musicQueue.songs.length === 0) {
@@ -96,8 +102,9 @@ export default class {
             if (!voiceConnection) return;
             if (!this.musicQueue.connection) this.musicQueue.connection = voiceConnection;
             this.play();
-        }).catch(e => {
-            console.error(e);
+            return;
+        }).catch((e: Error) => {
+            console.error(e.message);
             this.botMusicqueue.delete(this.guild.id);
             this.message.channel.send(e);
             return;
@@ -122,9 +129,15 @@ export default class {
     private getSongList = (url: string): Promise<{ name: string, url: string }[]> => {
         return ytlist(url, ['name', 'url'])
             .then((res: { data: { name: string, playlist: { name: string, url: string }[] } }) => {
-                if (res)
-                    return res.data.playlist;
-                else return [];
+                if (!res.data.name) {
+                    console.error(`This playlist don\'t have name, can not get the songs`);
+                    return this.getSong(url);
+                }
+
+                return !!res ? res.data.playlist : [];
+            }).catch((e: Error) => {
+                console.error(e.message);
+                return;
             });
     }
 
@@ -142,7 +155,14 @@ export default class {
             return;
         }
 
-        const dispatcher = this.musicQueue.connection?.play(ytdl(song.url))
+        const dispatcher = this.musicQueue.connection?.play(
+            ytdl(song.url)
+                .on('error', error => {
+                    console.error(`${song.url} is unvailable`);
+                    this.message.channel.send('This video has restricted which maybe **Regionally restricted, Private or Rentals**');
+                    dispatcher?.end();
+                    return;
+                }))
             .once('start', () => {
                 this.musicQueue.playing = true;
                 this.botMusicqueue.set(this.guild.id, this.musicQueue);
@@ -203,7 +223,7 @@ export default class {
                 return;
             })
             .on('error', e => {
-                console.error(e);
+                console.error(e.message);
             })
 
         dispatcher?.setVolume(this.musicQueue.volume / 100);
@@ -218,11 +238,9 @@ export default class {
      * @param time minutes, Default 5 minutes
      */
     public pause = (time: number = 5) => {
-        if (!this.musicQueue.songDispatcher) {
-            this.message.channel.send(`There is no songs in queue!`);
-            return;
-        } else
-            this.musicQueue.songDispatcher.emit('pause', time);
+        !this.musicQueue.songDispatcher
+            ? this.message.channel.send(`There is no songs in queue!`)
+            : this.musicQueue.songDispatcher.emit('pause', time);
         return
     }
 
