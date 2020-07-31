@@ -4,7 +4,7 @@ import { MusicContract, SongInfo } from '../Interface';
 
 export default class {
     private name = 'Play Audio';
-    private command = ['!play', '!skip', '!pause', '!stop'];
+    private command = ['!play', '!skip', '!pause', '!stop', '!volume'];
     private ytRegexp = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
     private message: Message;
     private musicQueue!: MusicContract;
@@ -19,10 +19,9 @@ export default class {
         this.guild = this.message.guild;
         this.lastPlayTime = Date.now();
         if (!this.botMusicqueue.has(this.guild.id))
-            this.musicQueue = { textChannel: this.message.channel, songs: [], volume: 5, playing: false };
+            this.musicQueue = { textChannel: this.message.channel, songs: [], volume: 10, playing: false };
         else
             this.musicQueue = this.botMusicqueue.get(this.guild.id) as MusicContract;
-
     }
 
     /**
@@ -71,8 +70,9 @@ export default class {
             .then(songInfo => {
                 const song: SongInfo = { title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url };
                 if (this.musicQueue.songs.length === 0) {
-                    if (this.musicQueue.hasOwnProperty('voiceChannel')) this.musicQueue.voiceChannel = voiceChannel;
+                    if (!this.musicQueue.hasOwnProperty('voiceChannel')) this.musicQueue.voiceChannel = voiceChannel;
                     this.musicQueue.songs.push(song);
+                    this.botMusicqueue.set(this.guild.id, this.musicQueue);
                     return voiceChannel.join();
                 }
                 this.musicQueue.songs.push(song);
@@ -171,7 +171,7 @@ export default class {
                 console.error(e);
             })
 
-        dispatcher?.setVolumeLogarithmic(this.musicQueue.volume / 5);
+        dispatcher?.setVolume(this.musicQueue.volume / 100);
         this.musicQueue.songDispatcher = dispatcher;
         this.botMusicqueue.set(this.guild.id, this.musicQueue);
         this.musicQueue.textChannel.send(`Start playing: **${song.title}**`);
@@ -218,6 +218,28 @@ export default class {
         return;
     }
 
+    /**
+     * If volume is null, get the music volume, else set the music volume
+     * @param volume 0 ~ 200, or null
+     */
+    public volume = (volume?: number) => {
+        if (!this.musicQueue.songDispatcher) {
+            this.message.channel.send('Bot is not playing music!');
+            return
+        }
+
+        if (!volume) {
+            if (this.message.deletable) this.message.delete();
+            this.message.channel.send(`Now volume is **${this.musicQueue.volume}**`);
+        } else {
+            this.musicQueue.volume = volume > 200 ? 200 : volume < 0 ? 0 : volume;
+            this.musicQueue.songDispatcher?.setVolume(this.musicQueue.volume / 100);
+            this.botMusicqueue.set(this.guild.id, this.musicQueue);
+            if (this.message.deletable) this.message.delete();
+            this.message.channel.send(`Set the volume to **${this.musicQueue.volume}**`);
+        }
+        return;
+    }
 
     /**
      * Clear musicQueue.songs, musicQueue.playing reset, and remove musicQueue.songDispatcher, save to botMusicQueue.
