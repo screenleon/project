@@ -1,4 +1,2 @@
-import Luck from "./luck";
-
-export { default as Luck } from './luck';
-export { default as PlayAudio } from './playAudio';
+export { Luck } from './luck';
+export { PlayAudio } from './playAudio';

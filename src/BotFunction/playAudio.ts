@@ -3,7 +3,7 @@ import ytdl from 'ytdl-core';
 import { MusicContract } from '../Interface';
 const ytlist = require('youtube-playlist');
 
-export default class {
+export class PlayAudio{
     private name = 'Play Audio';
     private command = ['!play', '!skip', '!pause', '!stop', '!volume'];
     private ytRegexp = /(?:http?s?:\/\/)?(?:www.)?(?:m.)?(?:music.)?youtu(?:\.?be)(?:\.com)?(?:(?:\w*.?:\/\/)?\w*.?\w*-?.?\w*\/(?:embed|e|v|watch|playlist|.*\/)?\??(?:feature=\w*\.?\w*)?&?(?:v=|list=)?\/?)([\w\d_-]{11})(?:\S+)?/;
@@ -104,7 +104,7 @@ export default class {
             this.play();
             return;
         }).catch((e: Error) => {
-            console.error(e.message);
+            console.error('Execute error:', e.message)
             this.botMusicqueue.delete(this.guild.id);
             this.message.channel.send(e);
             return;
@@ -136,7 +136,7 @@ export default class {
 
                 return !!res ? res.data.playlist : [];
             }).catch((e: Error) => {
-                console.error(e.message);
+                console.error('Get song list error:', e.message)
                 return;
             });
     }
@@ -157,8 +157,8 @@ export default class {
 
         const dispatcher = this.musicQueue.connection?.play(
             ytdl(song.url)
-                .on('error', error => {
-                    console.error(`${song.url} is unvailable`);
+                .on('error', e => {
+                    console.error('Play ytdl error:', `${e.message} is unvailable`)
                     this.message.channel.send('This video has restricted which maybe **Regionally restricted, Private or Rentals**');
                     dispatcher?.end();
                     return;
@@ -166,6 +166,8 @@ export default class {
             .once('start', () => {
                 this.musicQueue.playing = true;
                 this.botMusicqueue.set(this.guild.id, this.musicQueue);
+                this.message.channel.send(`Start playing: **${song.name}**`);
+                return;
             })
             .on('playing', () => {
                 if (this.musicQueue.playing === false) {
@@ -220,16 +222,17 @@ export default class {
                 this.musicQueue.songs = [];
                 this.clearDispatcher();
                 this.botMusicqueue.delete(this.guild.id);
+                this.message.channel.send('Stop playing');
                 return;
             })
             .on('error', e => {
-                console.error(e.message);
+                console.error('Play error:', e.message)
+                return;
             })
 
         dispatcher?.setVolume(this.musicQueue.volume / 100);
         this.musicQueue.songDispatcher = dispatcher;
         this.botMusicqueue.set(this.guild.id, this.musicQueue);
-        this.message.channel.send(`Start playing: **${song.name}**`);
         return;
     }
 
@@ -266,7 +269,6 @@ export default class {
      * @param time seconds, Default 30 seconds
      */
     public stop = (time: number = 30) => {
-        this.message.channel.send('Stop playing');
         this.musicQueue.songDispatcher?.emit('stop', time);
         return;
     }

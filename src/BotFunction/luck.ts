@@ -1,6 +1,6 @@
-export default class {
+export class Luck{
     private name = '運勢檢查';
-    private command = ['!luck', '!運勢'];
+    private command = ['!luck'];
 
     /**
      * Get the class name
