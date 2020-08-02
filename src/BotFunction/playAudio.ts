@@ -6,7 +6,6 @@ const ytlist = require('youtube-playlist');
 export class PlayAudio {
     private name = 'Play Audio';
     private command = ['!play', '!skip', '!pause', '!stop', '!volume'];
-    private ytRegexp = /(?:http?s?:\/\/)?(?:www.)?(?:m.)?(?:music.)?youtu(?:\.?be)(?:\.com)?(?:(?:\w*.?:\/\/)?\w*.?\w*-?.?\w*\/(?:embed|e|v|watch|playlist|.*\/)?\??(?:feature=\w*\.?\w*)?&?(?:v=|list=)?\/?)([\w\d_-]{11})(?:\S+)?/;
     private message: Message;
     private musicQueue!: MusicContract;
     private botMusicqueue: Map<string, MusicContract>;
@@ -58,7 +57,8 @@ export class PlayAudio {
             return;
         }
 
-        const matchYT = this.ytRegexp.exec(command);
+        const ytRegexp = /(?:http?s?:\/\/)?(?:www.)?(?:m.)?(?:music.)?youtu(?:\.?be)(?:\.com)?(?:(?:\w*.?:\/\/)?\w*.?\w*-?.?\w*\/(?:embed|e|v|watch|playlist|.*\/)?\??(?:feature=\w*\.?\w*)?&?(?:v=|list=)?\/?)([\w\d_-]{11})(?:\S+)?/;
+        const matchYT = ytRegexp.exec(command);
         if (command === this.command[0] && this.musicQueue.songs.length !== 0) {
             this.play();
             return;
