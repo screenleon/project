@@ -3,7 +3,7 @@ import ytdl from 'ytdl-core';
 import { MusicContract } from '../Interface';
 const ytlist = require('youtube-playlist');
 
-export class PlayAudio{
+export class PlayAudio {
     private name = 'Play Audio';
     private command = ['!play', '!skip', '!pause', '!stop', '!volume'];
     private ytRegexp = /(?:http?s?:\/\/)?(?:www.)?(?:m.)?(?:music.)?youtu(?:\.?be)(?:\.com)?(?:(?:\w*.?:\/\/)?\w*.?\w*-?.?\w*\/(?:embed|e|v|watch|playlist|.*\/)?\??(?:feature=\w*\.?\w*)?&?(?:v=|list=)?\/?)([\w\d_-]{11})(?:\S+)?/;
@@ -100,6 +100,10 @@ export class PlayAudio{
             return;
         }).then(voiceConnection => {
             if (!voiceConnection) return;
+            voiceConnection
+                .on('disconnect', listener => {
+                    this.resetMusicQueue();
+                })
             if (!this.musicQueue.connection) this.musicQueue.connection = voiceConnection;
             this.play();
             return;
@@ -159,8 +163,8 @@ export class PlayAudio{
             ytdl(song.url)
                 .on('error', e => {
                     console.error('Play ytdl error:', `${e.message} is unvailable`)
-                    this.message.channel.send('This video has restricted which maybe **Regionally restricted, Private or Rentals**');
-                    dispatcher?.end();
+                    this.message.channel.send(`${this.musicQueue.songs[0].name} has restricted which maybe **Regionally restricted, Private or Rentals**`);
+                    this.skip();
                     return;
                 }))
             .once('start', () => {
@@ -204,6 +208,10 @@ export class PlayAudio{
                 return;
             })
             .on('finish', () => {
+                if (!!this.musicQueue.voiceChannel && !(this.musicQueue.voiceChannel.members.size > 1)) {
+                    this.stop();
+                    return;
+                }
                 this.musicQueue.songs.shift();
                 this.botMusicqueue.set(this.guild.id, this.musicQueue);
                 this.play();
@@ -212,7 +220,7 @@ export class PlayAudio{
             .on('stop', (time: number = 30) => {
                 setTimeout(() => {
                     const musicQueue = this.botMusicqueue.get(this.guild.id);
-                    if (!musicQueue) {
+                    if (!musicQueue?.songs || musicQueue?.songs.length === 0) {
                         this.musicQueue.connection?.disconnect();
                         this.resetMusicQueue();
                     }
@@ -248,19 +256,16 @@ export class PlayAudio{
     }
 
     /**
-     * If songs more than one, then emit StreamDispatcher's finish event.
+     * If musicQueue.songs not empty, emit musicQueue.songDispatcher finish event
      */
     public skip = () => {
         switch (this.musicQueue.songs.length) {
             case 0:
-                this.message.channel.send('Music Queue is empty!')
-                break;
-            case 1:
-                this.message.channel.send('The song is the last one!');
-                break;
+                this.message.channel.send('There is no songs in queue!')
+                return;
             default:
                 this.musicQueue.songDispatcher?.emit('finish');
-                break;
+                return;
         }
     };
 
