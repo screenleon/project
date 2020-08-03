@@ -1,6 +1,6 @@
 import * as Discord from "discord.js";
 import dotenv from "dotenv";
-import { Luck, PlayAudio } from "./BotFunction";
+import { Luck, PlayAudio, Help, Reddit } from "./BotFunction";
 dotenv.config({ path: ".env" });
 
 const musicQueue = new Map();
@@ -26,29 +26,37 @@ client.on("message", (message) => {
 
   const luck = new Luck();
   const playAudio = new PlayAudio(message, musicQueue);
-  const luckCommand = luck.getCommand();
-  const playAudioCommand = playAudio.getCommand();
-  const helpCommand = "!help";
+  const reddit = new Reddit();
+  const help = new Help();
 
-  if (luckCommand.some((element) => userCommand === element)) {
-    if (message.deletable) message.delete();
-    message.reply(luck.checkLuck().luckString);
-  } else if (userCommand === "!play") {
-    playAudio.execute(message.content);
-  } else if (userCommand === "!skip") {
-    playAudio.skip();
-  } else if (userCommand === "!pause") {
-    playAudio.pause();
-  } else if (userCommand === "!stop") {
-    playAudio.stop();
-  } else if (userCommand === "!volume") {
-    playAudio.volume(parseInt(command[1]));
-  } else if (userCommand === helpCommand) {
-    const luckString = luck.getName() + "\n" + "Command: " + luckCommand;
-    const playAudioString =
-      playAudio.getName() + "\n" + "Command: " + playAudioCommand;
-    message.channel.send([luckString, playAudioString].join("\n\n"));
+  switch (userCommand) {
+    case '!luck':
+      if (message.deletable) message.delete();
+      message.reply(luck.checkLuck().luckString);
+      break;
+    case '!play':
+      playAudio.execute(message.content);
+      break;
+    case '!skip':
+      playAudio.skip();
+      break;
+    case '!pause':
+      playAudio.pause();
+      break;
+    case '!stop':
+      playAudio.stop();
+      break;
+    case '!volume':
+      playAudio.volume(parseInt(command[1]));
+      break;
+    case '!help':
+      message.channel.send(help.help());
+      break;
+    case '!reddit':
+      message.channel.send(reddit.execute(command.slice(1)));
+      break;
   }
+
   return;
 });
 

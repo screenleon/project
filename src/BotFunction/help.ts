@@ -1,30 +1,47 @@
+import { MessageEmbed } from "discord.js";
+
 export class Help {
     private name = 'Help';
     private command = ['!help'];
 
+    /**
+     * Get class name
+     */
     public getName = () => {
         return this.name;
     }
 
+    /**
+     * Get class command
+     */
     public getCommand = () => {
         return this.command;
     }
 
-    public help = (): string => {
-        const luckHelpText = ['Luck','!luck\tReply your luck'];
-        const playAudioHelpText = [
-            'PlayAudio',
-            '!play [args]\tCan queue the song or the list songs with youtube website',
-            '!play\tResume the pause song',
-            '!pause\tPause the playing song',
-            '!skip\tSkip the current song',
-            '!stop\tStop playing songs, clear the song queue',
-            '!volume [args]\tAdjust the current bot volume, default is 10, range from 1 to 200',
-            '!volume\tGet the current bot volume'
+    /**
+     * Get the Help instruction to Discord MessageEmbed
+     */
+    public help = (): MessageEmbed => {
+        const luckHelpDescription = ['!luck:    Reply your luck'];
+        const playAudioHelpDescription = [
+            '!play [args]:    Can queue the song or the list songs with youtube website',
+            '!play:    Resume the pause song',
+            '!pause:    Pause the playing song',
+            '!skip:    Skip the current song',
+            '!stop:    Stop playing songs, clear the song queue',
+            '!volume [args]:    Adjust the current bot volume, default is 10, range from 1 to 200',
+            '!volume:    Get the current bot volume'
         ];
+        const helpHelpDescription = ['!help:    Get the help document'];
 
-        const helpHelpText = ['Help', '!help\tGet the help document'];
-
-        return [luckHelpText.join('\n'), playAudioHelpText.join('\n'), helpHelpText.join('\n')].join('\n\n');
+        return new MessageEmbed()
+            .setTitle('Discord bot')
+            .setAuthor('Lien Chen')
+            .addFields(
+                { name: 'Luck', value: luckHelpDescription.join('\n') },
+                { name: 'PlayAudio', value: playAudioHelpDescription.join('\n') },
+                { name: 'Help', value: helpHelpDescription.join('\n') }
+            )
+            .setURL('http://github.com/screenleon/discord-bot');
     }
 }
