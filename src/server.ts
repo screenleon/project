@@ -26,7 +26,7 @@ client.on("message", (message) => {
 
   const luck = new Luck();
   const playAudio = new PlayAudio(message, musicQueue);
-  const reddit = new Reddit();
+  const reddit = new Reddit(message);
   const help = new Help();
 
   switch (userCommand) {
@@ -53,7 +53,7 @@ client.on("message", (message) => {
       message.channel.send(help.help());
       break;
     case '!reddit':
-      message.channel.send(reddit.execute(command.slice(1)));
+      reddit.execute(command.slice(1));
       break;
   }
 
