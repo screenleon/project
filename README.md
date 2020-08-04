@@ -30,11 +30,13 @@
 2. Play Audio
     * Play youtube song
     * Command: !play, !pause, !skip, !stop, !volume
+3. Reddit
+    * Get the hot or top 5 articles
+    * Command: !reddit, !reddit [args], !reddit top, !reddit hot, !reddit list
 3. Easy build with docker
 
 ---
 ## Implementation in the future
-* Get the latest reddit news
 * Maybe add the lotto system
 * Help
     * Give more information
