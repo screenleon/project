@@ -17,7 +17,7 @@ client.once("ready", () => {
 /**
  * Check the user's input, find the command and run it 
  */
-client.on("message", (message) => {
+client.on("message", (message: Discord.Message) => {
   if (message.author.bot) return;
 
   const command = message.content.match(/\S+/g);
@@ -50,7 +50,7 @@ client.on("message", (message) => {
       playAudio.volume(parseInt(command[1]));
       break;
     case '!help':
-      message.channel.send(help.help());
+      message.channel.send(help.execute());
       break;
     case '!reddit':
       reddit.execute(command.slice(1));

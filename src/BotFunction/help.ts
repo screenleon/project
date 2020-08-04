@@ -21,7 +21,7 @@ export class Help {
     /**
      * Get the Help instruction to Discord MessageEmbed
      */
-    public help = (): MessageEmbed => {
+    public execute = (): MessageEmbed => {
         const luckHelpDescription = ['!luck:    Reply your luck'];
         const playAudioHelpDescription = [
             '!play [args]:    Can queue the song or the list songs with youtube website',
@@ -33,15 +33,23 @@ export class Help {
             '!volume:    Get the current bot volume'
         ];
         const helpHelpDescription = ['!help:    Get the help document'];
+        const redditHelpDescription = [
+            '!reddit:    Get the Top 5 Reddit articles',
+            '!reddit top:    Get the Top 5 Reddit articles',
+            '!reddit hot:    Get the Hot 5 Reddit articles',
+            '!reddit list:    Get the Reddit 100 subreddits',
+            '!reddit [args]:    Get the Reddit\'s [args] Top 5 articles'
+        ]
 
         return new MessageEmbed()
             .setTitle('Discord bot')
             .setAuthor('Lien Chen')
+            .setURL('http://github.com/screenleon/discord-bot')
             .addFields(
                 { name: 'Luck', value: luckHelpDescription.join('\n') },
                 { name: 'PlayAudio', value: playAudioHelpDescription.join('\n') },
-                { name: 'Help', value: helpHelpDescription.join('\n') }
-            )
-            .setURL('http://github.com/screenleon/discord-bot');
+                { name: 'Help', value: helpHelpDescription.join('\n') },
+                { name: 'Reddit', value: redditHelpDescription.join('\n') }
+            );
     }
 }
