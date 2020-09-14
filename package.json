@@ -28,7 +28,7 @@
     "discord.js": "^12.2.0",
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.2.6",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "typescript": "^3.9.7",
     "youtube-playlist": "^1.0.4",
     "ytdl-core": "^3.1.3"
